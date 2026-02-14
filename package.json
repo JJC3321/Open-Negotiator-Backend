@@ -1,0 +1,29 @@
+{
+  "name": "valentine-hack",
+  "version": "1.0.0",
+  "description": "Multi-agent deal system - onboarding, Blaxel deal agents, deal API, deal emails",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "fetch-onboarding": "tsx scripts/fetchOnboarding.ts",
+    "seed-dummy": "tsx scripts/seedDummyData.ts",
+    "generate-souls": "tsx src/scripts/generateSouls.ts",
+    "generate-blaxel-deployments": "tsx scripts/generateBlaxelDeployments.ts",
+    "deal-api": "tsx src/dealApiServer.ts",
+    "mcp-server": "tsx src/mcpServer.ts"
+  },
+  "dependencies": {
+    "@blaxel/core": "^0.2.65",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "dotenv": "^16.4.5",
+    "nodemailer": "^6.9.16",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/nodemailer": "^6.4.16",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

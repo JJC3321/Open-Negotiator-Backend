@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+data/contexts/
+data/souls/
+workspaces/
+blaxel-deployments/
+.DS_Store
+Thumbs.db
