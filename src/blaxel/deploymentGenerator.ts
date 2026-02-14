@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "../config.js";
 import type { CompanyContext } from "../models.js";
+import { DEFAULT_AGENT_REGISTRY } from "./agentRegistry.js";
 
 const AGENT_PORT = 3000;
 
@@ -13,10 +14,14 @@ export interface GenerateBlaxelDeploymentOptions {
   outDir: string;
 }
 
-function blaxelTomlContent(agentId: string, companyName: string): string {
+function blaxelTomlContent(agentId: string, companyName: string, dealWebhookUrl: string, agentRegistryJson: string): string {
+  const webhookLine = dealWebhookUrl
+    ? `DEAL_WEBHOOK_URL = "${dealWebhookUrl.replace(/"/g, '\\"')}"`
+    : 'DEAL_WEBHOOK_URL = ""';
+  const registryEscaped = agentRegistryJson.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
   return `name = "${agentId}"
 type = "sandbox"
-description = "Deal agent - ${companyName}"
+description = "P2P deal agent - ${companyName}"
 
 [runtime]
 generation = "mk3"
@@ -29,13 +34,15 @@ protocol = "tcp"
 
 [env]
 COMPANY_ID = "${agentId}"
-DEAL_API_URL = ""
+COMPANY_NAME = "${companyName.replace(/"/g, '\\"')}"
+${webhookLine}
+AGENT_REGISTRY = "${registryEscaped}"
 PORT = "${AGENT_PORT}"
 `;
 }
 
 function dockerfileContent(serverJsBase64: string): string {
-  return `# Blaxel sandbox: deal agent (calls central deal API)
+  return `# Blaxel sandbox: P2P deal agent (talks to other agents directly)
 FROM node:22-slim
 
 COPY --from=ghcr.io/blaxel-ai/sandbox:latest /sandbox-api /usr/local/bin/sandbox-api
@@ -68,9 +75,24 @@ export async function generateBlaxelDeployment(
   const agentDir = path.join(outDir, context.id);
   await fs.mkdir(agentDir, { recursive: true });
 
+  const dealWebhookUrl = process.env.DEAL_WEBHOOK_URL ?? "";
+  let registry: string;
+  if (process.env.AGENT_REGISTRY) {
+    try {
+      const parsed = JSON.parse(process.env.AGENT_REGISTRY) as Record<string, { url: string; company_name: string }>;
+      delete parsed[context.id];
+      registry = JSON.stringify(parsed);
+    } catch {
+      registry = "{}";
+    }
+  } else {
+    const defaultCopy = { ...DEFAULT_AGENT_REGISTRY };
+    delete defaultCopy[context.id];
+    registry = JSON.stringify(defaultCopy);
+  }
   await fs.writeFile(
     path.join(agentDir, "blaxel.toml"),
-    blaxelTomlContent(context.id, context.company_name),
+    blaxelTomlContent(context.id, context.company_name, dealWebhookUrl, registry),
     "utf-8"
   );
 

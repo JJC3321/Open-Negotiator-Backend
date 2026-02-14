@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     console.log(`  - ${d}`);
   }
   console.log("");
-  console.log("Set DEAL_API_URL in each deployment (Blaxel console or blaxel.toml) to your deal API (e.g. npm run deal-api).");
+  console.log("P2P agents: set DEAL_WEBHOOK_URL (e.g. https://your-server/deal_made) and AGENT_REGISTRY (JSON of other agent URLs) in each deployment.");
   console.log("Deploy each agent: bl deploy -d blaxel-deployments/<agent-id>");
   console.log("");
   console.log("Example:");

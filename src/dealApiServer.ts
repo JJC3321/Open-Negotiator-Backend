@@ -4,10 +4,12 @@ import {
   propose,
   acceptDeal,
   getProposalStatus,
+  loadContext,
   type ProposeParams,
   type AcceptDealParams,
   type GetProposalStatusParams,
 } from "./dealToolsCore.js";
+import { handleDealMade } from "./dealHandler.js";
 
 const DEFAULT_PORT = 3780;
 
@@ -55,12 +57,40 @@ async function handleDealRequest(
 }
 
 const server = http.createServer(async (req, res) => {
-  if (req.method !== "POST" || req.url !== "/deal") {
-    if (req.method === "GET" && req.url === "/health") {
-      send(res, 200, { ok: true });
+  if (req.method === "GET" && req.url === "/health") {
+    send(res, 200, { ok: true });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/deal_made") {
+    const body = (await parseBody(req)) as {
+      proposal_id?: string;
+      from_company_id?: string;
+      to_company_id?: string;
+      terms?: Record<string, unknown>;
+    };
+    const proposalId = body?.proposal_id ?? "";
+    const fromCompanyId = body?.from_company_id ?? "";
+    const toCompanyId = body?.to_company_id ?? "";
+    const terms = body?.terms ?? {};
+    if (!proposalId || !fromCompanyId || !toCompanyId) {
+      send(res, 400, { error: "proposal_id, from_company_id, to_company_id required" });
       return;
     }
-    send(res, 404, { error: "Not found. POST /deal with { method, params }." });
+    try {
+      await handleDealMade(
+        { proposalId, fromCompanyId, toCompanyId, terms },
+        loadContext
+      );
+      send(res, 200, { ok: true, message: "Deal recorded and emails sent." });
+    } catch (e) {
+      send(res, 500, { error: String((e as Error).message) });
+    }
+    return;
+  }
+
+  if (req.method !== "POST" || req.url !== "/deal") {
+    send(res, 404, { error: "Not found. POST /deal or /deal_made." });
     return;
   }
 

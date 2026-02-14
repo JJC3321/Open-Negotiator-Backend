@@ -5,6 +5,7 @@ dist/
 *.log
 data/contexts/
 data/souls/
+data/agent-registry.json
 workspaces/
 blaxel-deployments/
 .DS_Store

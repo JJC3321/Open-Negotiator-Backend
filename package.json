@@ -11,7 +11,9 @@
     "generate-souls": "tsx src/scripts/generateSouls.ts",
     "generate-blaxel-deployments": "tsx scripts/generateBlaxelDeployments.ts",
     "deal-api": "tsx src/dealApiServer.ts",
-    "mcp-server": "tsx src/mcpServer.ts"
+    "mcp-server": "tsx src/mcpServer.ts",
+    "test-two-agents": "tsx scripts/testTwoAgents.ts",
+    "sync-agent-registry": "tsx scripts/syncAgentRegistry.ts"
   },
   "dependencies": {
     "@blaxel/core": "^0.2.65",
