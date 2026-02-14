@@ -13,6 +13,7 @@
     "deal-api": "tsx src/dealApiServer.ts",
     "mcp-server": "tsx src/mcpServer.ts",
     "test-two-agents": "tsx scripts/testTwoAgents.ts",
+    "test-deal-email": "tsx scripts/testDealEmail.ts",
     "sync-agent-registry": "tsx scripts/syncAgentRegistry.ts"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^16.4.5",
     "nodemailer": "^6.9.16",
+    "resend": "^6.9.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {

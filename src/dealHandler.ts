@@ -1,5 +1,6 @@
 import type { CompanyContext } from "./models.js";
-import { sendDealEmail } from "./emailSender.js";
+import { config } from "./config.js";
+import { sendDealEmail, sendProposalNotification } from "./emailSender.js";
 
 export interface DealMadePayload {
   proposalId: string;
@@ -36,4 +37,17 @@ export async function handleDealMade(
     summary,
     terms: payload.terms,
   });
+
+  const notifyEmail = config.DEAL_PROPOSAL_NOTIFY_EMAIL;
+  if (notifyEmail) {
+    await sendProposalNotification({
+      toEmail: notifyEmail,
+      proposalId: payload.proposalId,
+      fromCompanyName: fromCtx.company_name,
+      fromCompanyId: payload.fromCompanyId,
+      toCompanyName: toCtx.company_name,
+      toCompanyId: payload.toCompanyId,
+      terms: payload.terms,
+    });
+  }
 }
